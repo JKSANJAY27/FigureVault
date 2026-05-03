@@ -49,10 +49,10 @@ popd
 
 echo [3/3] Copying JAR to bin\pdffigures2.jar...
 if not exist bin mkdir bin
-copy /Y "_build_tmp\pdffigures2\target\scala-*\pdffigures2-assembly-*.jar" "bin\pdffigures2.jar"
+copy /Y "_build_tmp\pdffigures2\pdffigures2.jar" "bin\pdffigures2.jar"
 if errorlevel 1 (
     :: Try wildcard copy via PowerShell
-    powershell -Command "Copy-Item (Get-ChildItem '_build_tmp\pdffigures2\target\scala-*\pdffigures2-assembly-*.jar' | Select-Object -First 1).FullName 'bin\pdffigures2.jar'"
+    powershell -Command "Copy-Item '_build_tmp\pdffigures2\pdffigures2.jar' 'bin\pdffigures2.jar'"
 )
 
 if exist "bin\pdffigures2.jar" (
