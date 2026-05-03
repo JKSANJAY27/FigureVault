@@ -83,26 +83,24 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 5. Download PDFFigures2 JAR
+# 5. Check PDFFigures2 JAR
 # ---------------------------------------------------------------------------
-header "Setting up PDFFigures2"
+header "Checking PDFFigures2"
 JAR_DIR="bin"
 JAR_PATH="$JAR_DIR/pdffigures2.jar"
-JAR_URL="https://github.com/allenai/pdffigures2/releases/download/v0.1.0/pdffigures2-assembly-0.1.0.jar"
 
 mkdir -p "$JAR_DIR"
 if [ -f "$JAR_PATH" ]; then
-    ok "PDFFigures2 JAR already present"
+    ok "PDFFigures2 JAR found at $JAR_PATH"
 else
-    if command -v curl &>/dev/null; then
-        echo "  Downloading PDFFigures2 (this may take a minute)..."
-        curl -L --silent --show-error -o "$JAR_PATH" "$JAR_URL" && ok "Downloaded $JAR_PATH" || warn "Download failed — you can manually download from $JAR_URL"
-    elif command -v wget &>/dev/null; then
-        wget -q -O "$JAR_PATH" "$JAR_URL" && ok "Downloaded $JAR_PATH" || warn "Download failed"
-    else
-        warn "Neither curl nor wget found. Download PDFFigures2 manually:"
-        echo "  $JAR_URL → $JAR_PATH"
-    fi
+    warn "PDFFigures2 JAR not found at $JAR_PATH."
+    echo "  The official repository does not provide pre-compiled binaries."
+    echo "  If you want higher accuracy figure extraction, you must build it manually:"
+    echo "    1. git clone https://github.com/allenai/pdffigures2.git"
+    echo "    2. cd pdffigures2"
+    echo "    3. sbt assembly"
+    echo "    4. cp pdffigures2.jar ../bin/pdffigures2.jar"
+    echo "  Without this, FigureVault will automatically fall back to the PyMuPDF heuristic extractor."
 fi
 
 # ---------------------------------------------------------------------------
@@ -135,12 +133,12 @@ if command -v ollama &>/dev/null; then
         ok "A Gemma model is available in Ollama"
     else
         warn "No Gemma model found. Pull one with:"
-        echo "  ollama pull gemma4:4b   (recommended — requires ~4GB VRAM)"
-        echo "  ollama pull gemma3:4b   (alternative tag)"
+        echo "  ollama pull gemma4:e4b   (recommended — requires ~4GB VRAM)"
+        echo "  ollama pull gemma3:e4b   (alternative tag)"
     fi
 else
     warn "Ollama not found. Install from https://ollama.ai and then run:"
-    echo "  ollama pull gemma4:4b"
+    echo "  ollama pull gemma4:e4b"
 fi
 
 # ---------------------------------------------------------------------------
