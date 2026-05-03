@@ -117,7 +117,9 @@ with tab_process:
                 # Use a manual loop for classification to show progress
                 progress_clf = st.progress(0, text="Classifying figures (0%)...")
                 for i, fig in enumerate(figures):
-                    clf.classify(fig)
+                    image_path = fig.get("image_path") or ""
+                    caption = fig.get("caption") or ""
+                    fig["classification"] = clf.classify(image_path, caption)
                     progress_clf.progress((i + 1) / len(figures), text=f"Classified figure {i+1} of {len(figures)}...")
 
                 # Phase 4 + 5
