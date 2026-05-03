@@ -122,17 +122,17 @@ class TestOllamaClient:
 
     def test_is_available_true(self):
         from models.ollama_client import OllamaClient
-        client = OllamaClient(model="gemma4:4b")
+        client = OllamaClient(model="gemma4:e4b")
         with patch.object(client._session, "get") as mock_get:
             mock_get.return_value.json.return_value = {
-                "models": [{"name": "gemma4:4b"}]
+                "models": [{"name": "gemma4:e4b"}]
             }
             mock_get.return_value.raise_for_status = MagicMock()
             assert client.is_available() is True
 
     def test_is_available_false_no_model(self):
         from models.ollama_client import OllamaClient
-        client = OllamaClient(model="gemma4:4b")
+        client = OllamaClient(model="gemma4:e4b")
         with patch.object(client._session, "get") as mock_get:
             mock_get.return_value.json.return_value = {"models": [{"name": "llama3:8b"}]}
             mock_get.return_value.raise_for_status = MagicMock()
@@ -221,22 +221,26 @@ class TestFigureClassifier:
     def test_parse_valid_json(self):
         from pipeline.classifier import FigureClassifier
         clf = FigureClassifier(client=MagicMock())
-        label, conf = clf._parse_response('{"label":"line_plot","confidence":0.9,"reasoning":"looks like a line"}')
-        assert label == "line_plot"
-        assert conf == pytest.approx(0.9)
+        # New API: supports both "figure_type" and legacy "label" keys
+        result = clf._parse_response('{"figure_type":"line_plot","confidence":0.9,"reasoning":"looks like a line","has_quantitative_data":true,"sub_types":[]}')
+        assert isinstance(result, dict)
+        assert result["figure_type"] == "line_plot"
+        assert result["confidence"] == pytest.approx(0.9)
 
     def test_parse_embedded_json(self):
         from pipeline.classifier import FigureClassifier
         clf = FigureClassifier(client=MagicMock())
-        raw = 'Sure! Here is the result: {"label":"bar_chart","confidence":0.8,"reasoning":"bars"}'
-        label, conf = clf._parse_response(raw)
-        assert label == "bar_chart"
+        raw = 'Sure! Here is the result: {"figure_type":"bar_chart","confidence":0.8,"reasoning":"bars","has_quantitative_data":true,"sub_types":[]}'
+        result = clf._parse_response(raw)
+        assert isinstance(result, dict)
+        assert result["figure_type"] == "bar_chart"
 
     def test_parse_invalid_falls_back(self):
         from pipeline.classifier import FigureClassifier
         clf = FigureClassifier(client=MagicMock())
-        label, conf = clf._parse_response("I think this is a scatter plot")
-        assert label in ["scatter_plot", "other"]
+        result = clf._parse_response("I think this is a scatter plot")
+        assert isinstance(result, dict)
+        assert result["figure_type"] in ["scatter_plot", "other"]
 
 
 # ---------------------------------------------------------------------------
