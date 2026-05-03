@@ -1,0 +1,52 @@
+# FigureVault — Scientific Figure Data Extraction System
+# Core dependencies
+
+# PDF Processing
+pymupdf>=1.24.0
+
+# Web API
+fastapi>=0.110.0
+uvicorn>=0.29.0
+
+# Demo UI
+streamlit>=1.35.0
+
+# Computer Vision
+opencv-python>=4.9.0
+scikit-image>=0.22.0
+
+# Numerical / Data
+numpy>=1.26.0
+pandas>=2.2.0
+scipy>=1.13.0
+matplotlib>=3.8.0
+
+# Image handling
+Pillow>=10.3.0
+
+# HTTP / Networking
+requests>=2.31.0
+
+# Vector Database
+chromadb>=0.5.0
+
+# ORM / Database
+sqlalchemy>=2.0.0
+
+# Config
+python-dotenv>=1.0.0
+
+# Progress bars
+tqdm>=4.66.0
+
+# Plot digitization helper
+plotdigitizer>=0.3.0
+
+# GROBID client (PDF header/reference extraction)
+grobid-client-python>=0.0.8
+
+# Excel export
+openpyxl>=3.1.0
+
+# Data validation
+pydantic>=2.0.0
