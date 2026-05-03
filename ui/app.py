@@ -51,7 +51,7 @@ with st.sidebar:
         st.success("🟢 Ollama connected")
     else:
         st.error("🔴 Ollama not available")
-        st.caption("Start Ollama and run: `ollama pull gemma4:4b`")
+        st.caption("Start Ollama and run: `ollama pull gemma4:e4b`")
 
     st.divider()
     st.subheader("📂 Recent Papers")
@@ -112,14 +112,27 @@ with tab_process:
                 # Phase 3
                 st.write("🏷️ **Phase 3:** Classifying figures…")
                 clf = FigureClassifier(client=client, confidence_threshold=confidence_threshold)
-                clf.classify_batch(figures)
+                
+                # Use a manual loop for classification to show progress
+                progress_clf = st.progress(0, text="Classifying figures (0%)...")
+                for i, fig in enumerate(figures):
+                    clf.classify(fig)
+                    progress_clf.progress((i + 1) / len(figures), text=f"Classified figure {i+1} of {len(figures)}...")
 
                 # Phase 4 + 5
                 st.write("🧠 **Phase 4–5:** Extracting data with Gemma4…")
                 ctx_builder = ContextBuilder(meta)
                 contexts = ctx_builder.build_all(figures)
+                
                 data_extractor = DataExtractor(client=client, confidence_threshold=confidence_threshold)
-                series_map = data_extractor.extract_batch(contexts)
+                series_map = {}
+                
+                # Use a manual loop for extraction to show progress
+                progress_ext = st.progress(0, text="Extracting data from figures (0%)...")
+                for i, ctx in enumerate(contexts):
+                    fig_num = ctx.figure.figure_number
+                    series_map[fig_num] = data_extractor.extract(ctx)
+                    progress_ext.progress((i + 1) / len(contexts), text=f"Extracted data from figure {i+1} of {len(contexts)}...")
 
                 # Phase 7/8
                 st.write("💾 **Phase 7–8:** Generating outputs…")
