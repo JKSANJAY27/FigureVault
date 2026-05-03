@@ -105,8 +105,9 @@ with tab_process:
 
                 # Phase 2
                 st.write("🖼️ **Phase 2:** Extracting figures…")
-                fig_extractor = FigureExtractor(tmp_path, output_dir=OUTPUT_DIR / "ui_uploads")
-                figures = fig_extractor.extract()
+                fig_extractor = FigureExtractor()
+                records = fig_extractor.extract_all(tmp_path, output_dir=OUTPUT_DIR / "ui_uploads")
+                figures = [r.to_dict() for r in records]
                 st.write(f"   Found **{len(figures)}** figures")
 
                 # Phase 3

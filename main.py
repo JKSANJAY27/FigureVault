@@ -66,7 +66,7 @@ def cmd_process(args: argparse.Namespace) -> int:
     if not client.is_available():
         logger.error(
             "Ollama is not running or the model is not loaded. "
-            "Start Ollama and pull the model with: ollama pull gemma4:4b"
+            "Start Ollama and pull the model with: ollama pull gemma4:e4b"
         )
         return 1
 
@@ -77,8 +77,9 @@ def cmd_process(args: argparse.Namespace) -> int:
     paper_meta = parser.parse()
 
     # Phase 2 — Figure extraction
-    extractor = FigureExtractor(pdf_path, output_dir=out_dir)
-    figures = extractor.extract()
+    extractor = FigureExtractor()
+    records = extractor.extract_all(pdf_path, output_dir=out_dir)
+    figures = [r.to_dict() for r in records]
     logger.info("Extracted %d figures", len(figures))
 
     # Phase 3 — Classification
