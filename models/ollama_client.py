@@ -38,7 +38,7 @@ class OllamaClient:
     base_url : str
         Root URL of the Ollama server, e.g. ``"http://localhost:11434"``.
     model : str
-        Model tag to use for inference, e.g. ``"gemma4:4b"``.
+        Model tag to use for inference, e.g. ``"gemma4:e4b"``.
     timeout : int
         Per-request timeout in seconds.
     max_retries : int
@@ -112,7 +112,11 @@ class OllamaClient:
             "prompt": prompt,
             "system": system,
             "stream": False,
-            "options": {"temperature": temperature},
+            "format": "json",
+            "options": {
+                "temperature": temperature,
+                "num_ctx": 2048,  # Limit context window to save memory
+            },
         }
         response = self._call_with_retry(
             endpoint="/api/generate",
@@ -156,7 +160,11 @@ class OllamaClient:
             "system": system,
             "images": [image_b64],   # Ollama expects a list of base64 strings
             "stream": False,
-            "options": {"temperature": temperature},
+            "format": "json",
+            "options": {
+                "temperature": temperature,
+                "num_ctx": 4096,  # Multimodal needs more context
+            },
         }
         response = self._call_with_retry(
             endpoint="/api/generate",
@@ -188,7 +196,10 @@ class OllamaClient:
             "model": self.model,
             "messages": messages,
             "stream": False,
-            "options": {"temperature": temperature},
+            "options": {
+                "temperature": temperature,
+                "num_ctx": 2048,  # Limit context window to save memory
+            },
         }
         response = self._call_with_retry(
             endpoint="/api/chat",
