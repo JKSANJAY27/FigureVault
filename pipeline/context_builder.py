@@ -80,31 +80,48 @@ class ContextBuilder:
         self.meta = paper_meta
         self.window_chars = window_chars
 
-    def build(self, figure: FigureRecord) -> PromptContext:
+    def build(self, figure: FigureRecord | dict) -> PromptContext:
         """Build a PromptContext for a single figure.
 
         Parameters
         ----------
-        figure : FigureRecord
+        figure : FigureRecord or dict
 
         Returns
         -------
         PromptContext
         """
-        surrounding = self._find_surrounding_text(figure)
+        if isinstance(figure, dict):
+            from pathlib import Path
+            img_path = figure.get("image_path")
+            fig_obj = FigureRecord(
+                page_number=figure.get("page", 0),
+                figure_number=figure.get("figure_number", ""),
+                panel_label=figure.get("panel_label", ""),
+                caption=figure.get("caption", ""),
+                figure_type=figure.get("classification", {}).get("figure_type") or figure.get("figure_type"),
+                image_path=Path(img_path) if img_path else None,
+                bounding_box=figure.get("bounding_box", {}),
+                source=figure.get("source", ""),
+                confidence=figure.get("confidence", 1.0)
+            )
+        else:
+            fig_obj = figure
+
+        surrounding = self._find_surrounding_text(fig_obj)
         ctx = PromptContext(
-            figure=figure,
+            figure=fig_obj,
             surrounding_text=surrounding,
             paper_title=self.meta.title,
             doi=self.meta.doi,
         )
         logger.debug(
             "Built context for figure %s (surrounding_chars=%d)",
-            figure.figure_number, len(surrounding),
+            fig_obj.figure_number, len(surrounding),
         )
         return ctx
 
-    def build_all(self, figures: list[FigureRecord]) -> list[PromptContext]:
+    def build_all(self, figures: list[FigureRecord | dict]) -> list[PromptContext]:
         """Build prompt contexts for every figure in a list."""
         return [self.build(fig) for fig in figures]
 
