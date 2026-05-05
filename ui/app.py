@@ -106,8 +106,7 @@ with tab_process:
                 # Phase 2
                 st.write("🖼️ **Phase 2:** Extracting figures…")
                 fig_extractor = FigureExtractor()
-                records = fig_extractor.extract_all(tmp_path, output_dir=OUTPUT_DIR / "ui_uploads")
-                figures = [r.to_dict() for r in records]
+                figures = fig_extractor.extract_all(tmp_path, output_dir=OUTPUT_DIR / "ui_uploads")
                 st.write(f"   Found **{len(figures)}** figures")
 
                 # Phase 3
@@ -117,9 +116,11 @@ with tab_process:
                 # Use a manual loop for classification to show progress
                 progress_clf = st.progress(0, text="Classifying figures (0%)...")
                 for i, fig in enumerate(figures):
-                    image_path = fig.get("image_path") or ""
-                    caption = fig.get("caption") or ""
-                    fig["classification"] = clf.classify(image_path, caption)
+                    image_path = str(fig.image_path) if fig.image_path else ""
+                    caption = fig.caption or ""
+                    result = clf.classify(image_path, caption)
+                    fig.figure_type = result["figure_type"]
+                    fig.confidence = result["confidence"]
                     progress_clf.progress((i + 1) / len(figures), text=f"Classified figure {i+1} of {len(figures)}...")
 
                 # Phase 4 + 5

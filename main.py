@@ -78,13 +78,12 @@ def cmd_process(args: argparse.Namespace) -> int:
 
     # Phase 2 — Figure extraction
     extractor = FigureExtractor()
-    records = extractor.extract_all(pdf_path, output_dir=out_dir)
-    figures = [r.to_dict() for r in records]
+    figures = extractor.extract_all(pdf_path, output_dir=out_dir)
     logger.info("Extracted %d figures", len(figures))
 
     # Phase 3 — Classification
     classifier = FigureClassifier(client=client)
-    classifier.classify_batch(figures)
+    classifier.classify_figure_records(figures)
 
     # Phase 4 — Context building
     ctx_builder = ContextBuilder(paper_meta)
