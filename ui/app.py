@@ -124,14 +124,16 @@ with tab_process:
                     progress_clf.progress((i + 1) / len(figures), text=f"Classified figure {i+1} of {len(figures)}...")
 
                 # Phase 4 + 5
-                st.write("🧠 **Phase 4–5:** Extracting data with Gemma4…")
-                ctx_builder = ContextBuilder(meta)
-                contexts = ctx_builder.build_all(figures)
+                st.write("🧠 **Phase 4:** Building rich extraction context…")
+                ctx_builder = ContextBuilder(meta, max_context_chars=3000)
+                contexts = ctx_builder.build_all(figures, pdf_parser=parser)
+                st.write(f"   Context built for **{len(contexts)}** figures")
                 
                 data_extractor = DataExtractor(client=client, confidence_threshold=confidence_threshold)
                 series_map = {}
                 
-                # Use a manual loop for extraction to show progress
+                # Phase 5 — Data extraction
+                st.write("🧠 **Phase 5:** Extracting data with Gemma4…")
                 progress_ext = st.progress(0, text="Extracting data from figures (0%)...")
                 for i, ctx in enumerate(contexts):
                     fig_num = ctx.figure.figure_number
